@@ -16,7 +16,7 @@ function merge_override_content_to_inner_blocks($content_override, $blocks)
     }
 
     // Get the full quality image URL
-    $url = $value['id'] ? wp_get_attachment_url($value['id']) : '';
+    $url = isset($value['id']) ? wp_get_attachment_url($value['id']) : '';
 
     foreach ($blocks as &$block) {
       if (isset($block['attrs']['metadata']['name'])) {
