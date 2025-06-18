@@ -11,100 +11,10 @@ use WP_Block;
 use pQuery;
 
 // Ava custom functions
-// TODO: Extract all our code to separate files like this one.
 require_once __DIR__ . '/ava/manipulate-block-format-text-highlight/manipulate-block-format-text-highlight.php';
-
-function merge_override_content($content_override, $blocks)
-{
-  foreach ($content_override as $key => $value) {
-    if (!isset($value['content']) && !isset($value['text']) && !isset($value['url'])) {
-      continue;
-    }
-
-    foreach ($blocks as &$block) {
-      if (isset($block['attrs']['metadata']['name'])) {
-        if ($block['attrs']['metadata']['name'] === $key) {
-          if (isset($value['content'])) {
-            $block['attrs']['content'] = $value['content'];
-          }
-          if (isset($value['text'])) {
-            $block['attrs']['text'] = $value['text'];
-          }
-					if (isset($value['linkTarget'])) {
-						$block['attrs']['linkTarget'] = $value['linkTarget'];
-					}
-					if (isset($value['rel'])) {
-						$block['attrs']['rel'] = $value['rel'];
-					}
-          if (isset($value['url'])) {
-            $block['attrs']['url'] = $value['url'];
-          }
-          if (isset($value['id'])) {
-            $block['attrs']['id'] = $value['id'];
-          }
-          if (isset($value['alt'])) {
-            $block['attrs']['alt'] = $value['alt'];
-          }
-					if (isset($value['title'])) {
-						$block['attrs']['title'] = $value['title'];
-					}
-        }
-      }
-
-      // Handle background image override
-      if(isset($block['attrs']['className'])){
-        if( str_contains($block['attrs']['className'], 'background-image-override-target') ){
-          if ($key === 'Background Image Override') {
-            if(isset($block['attrs']['style']['background']['backgroundImage']['url'])){
-              $block['attrs']['style']['background']['backgroundImage']['url'] = $value['url'];
-              $block['attrs']['style']['background']['backgroundImage']['id'] = $value['id'];
-            }
-          }else if($key === 'Background Image Override Tablet'){
-            if(isset($block['attrs']['imageOnTablet'])){
-              $block['attrs']['imageOnTablet'] = $value['url'];
-              $block['attrs']['imageOnTabletId'] = $value['id'];
-            }
-          }else if($key === 'Background Image Override Laptop'){
-            if(isset($block['attrs']['imageOnLaptop'])){
-              $block['attrs']['imageOnLaptop'] = $value['url'];
-              $block['attrs']['imageOnLaptopId'] = $value['id'];
-            }
-          }else if($key === 'Background Image Override Desktop'){
-            if(isset($block['attrs']['imageOnDesktop'])){
-              $block['attrs']['imageOnDesktop'] = $value['url'];
-              $block['attrs']['imageOnDesktopId'] = $value['id'];
-            }
-          }else if($key === 'Background Image Override Mobile RTL'){
-            if(isset($block['attrs']['rtlImageOnMobile'])){
-              $block['attrs']['rtlImageOnMobile'] = $value['url'];
-              $block['attrs']['rtlImageOnMobileId'] = $value['id'];
-            }
-          }else if($key === 'Background Image Override Tablet RTL'){
-            if(isset($block['attrs']['rtlImageOnTablet'])){
-              $block['attrs']['rtlImageOnTablet'] = $value['url'];
-              $block['attrs']['rtlImageOnTabletId'] = $value['id'];
-            }
-          }else if($key === 'Background Image Override Laptop RTL'){
-            if(isset($block['attrs']['rtlImageOnLaptop'])){
-              $block['attrs']['rtlImageOnLaptop'] = $value['url'];
-              $block['attrs']['rtlImageOnLaptopId'] = $value['id'];
-            }
-          }else if($key === 'Background Image Override Desktop RTL'){
-            if(isset($block['attrs']['rtlImageOnDesktop'])){
-              $block['attrs']['rtlImageOnDesktop'] = $value['url'];
-              $block['attrs']['rtlImageOnDesktopId'] = $value['id'];
-            }
-          }
-        }
-      }
-
-      if (!empty($block['innerBlocks'])) {
-        $block['innerBlocks'] = merge_override_content($content_override, $block['innerBlocks']);
-      }
-    }
-  }
-  return $blocks;
-}
+require_once __DIR__ . '/ava/serve-full-image-quality/serve-full-image-quality.php';
+require_once __DIR__ . '/ava/process-shortcode/process-shortcode.php';
+require_once __DIR__ . '/ava/sync-pattern-to-inner-blocks/sync-pattern-to-inner-blocks.php';
 
 /**
  * Get blocks from html string.
@@ -137,30 +47,8 @@ function get_blocks( $content, $post_id = 0 ) {
  * @return array|false
  */
 function handle_do_block( array $block, $post_id = 0 ) {
-	// Sync Patterns: Parsing and processing the pattern inner blocks.
-	if ($block['blockName'] === 'core/block' && isset($block['attrs']['ref']) && !empty($block['attrs']['ref'])) {
-		$sync_pattern = get_post($block['attrs']['ref']);
-
-		$content_override = [];
-		if (isset($block['attrs']['content'])) {
-			$content_override = $block['attrs']['content'];
-		}
-
-		if ($sync_pattern && 'wp_block' === $sync_pattern->post_type) {
-			// parse the inner blocks
-			$block['innerBlocks'] = parse_blocks($sync_pattern->post_content);
-			// remove the empty blocks
-			$sync_inner_blocks = [];
-			foreach ($block['innerBlocks'] as $_block) {
-				if ($_block['blockName']) {
-					$sync_inner_blocks[] = $_block;
-				}
-			}
-			$block['innerBlocks'] = $sync_inner_blocks;
-			// merge the content override to the inner blocks
-			$block['innerBlocks'] = merge_override_content($content_override, $block['innerBlocks']);
-		}
-	}
+  serve_full_image_quality($block);
+  sync_pattern_to_inner_blocks($block);
 
 	if ( ! $block['blockName'] ) {
 		return false;
@@ -190,17 +78,7 @@ function handle_do_block( array $block, $post_id = 0 ) {
 		}
 	}
 
-  // Process shortcodes
-  $is_supports_shortcode_for_blocks = $block['blockName'] === 'core/paragraph' || $block['blockName'] === 'core/heading';
-  if($is_supports_shortcode_for_blocks){
-    if (isset($attr['content'])) {
-      $attr['content'] = do_shortcode($attr['content']);
-    }
-    if (isset($attr['text'])) {
-      $attr['text'] = do_shortcode($attr['text']);
-    }
-  }
-
+  process_shortcode($block, $attr);
   manipulate_block_format_text_highlight($block, $attr);
 
   // * Removed by Ava
