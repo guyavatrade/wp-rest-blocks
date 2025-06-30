@@ -11,10 +11,10 @@ use WP_Block;
 use pQuery;
 
 // Ava custom functions
-require_once __DIR__ . '/ava/manipulate-block-format-text-highlight/manipulate-block-format-text-highlight.php';
-require_once __DIR__ . '/ava/serve-full-image-quality/serve-full-image-quality.php';
-require_once __DIR__ . '/ava/process-shortcode/process-shortcode.php';
-require_once __DIR__ . '/ava/sync-pattern-to-inner-blocks/sync-pattern-to-inner-blocks.php';
+require_once __DIR__ . '/ava/manipulate-block-format-text-highlight.php';
+require_once __DIR__ . '/ava/serve-full-image-quality.php';
+require_once __DIR__ . '/ava/process-shortcode.php';
+require_once __DIR__ . '/ava/sync-pattern-to-inner-blocks.php';
 
 /**
  * Get blocks from html string.

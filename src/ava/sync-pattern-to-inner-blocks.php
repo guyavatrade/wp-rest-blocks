@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../merge-override-content-to-inner-blocks/merge-override-content-to-inner-blocks.php';
+require_once __DIR__ . '/merge-override-content-to-inner-blocks.php';
 
 function sync_pattern_to_inner_blocks(&$block)
 {

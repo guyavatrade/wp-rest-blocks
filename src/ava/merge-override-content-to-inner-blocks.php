@@ -10,15 +10,18 @@
  */
 function merge_override_content_to_inner_blocks($content_override, $blocks)
 {
-  foreach ($content_override as $key => $value) {
-    if (!isset($value['content']) && !isset($value['text']) && !isset($value['url'])) {
-      continue;
-    }
+  $result = [];
 
-    // Get the full quality image URL
-    $url = isset($value['id']) ? wp_get_attachment_url($value['id']) : '';
+  foreach ($blocks as $index => $block) {
+    // Process block content overrides
+    foreach ($content_override as $key => $value) {
+      if (!isset($value['content']) && !isset($value['text']) && !isset($value['url'])) {
+        continue;
+      }
 
-    foreach ($blocks as &$block) {
+      // Get the full quality image URL
+      $url = isset($value['id']) ? wp_get_attachment_url($value['id']) : '';
+
       if (isset($block['attrs']['metadata']['name'])) {
         if ($block['attrs']['metadata']['name'] === $key) {
           if (isset($value['content'])) {
@@ -94,11 +97,16 @@ function merge_override_content_to_inner_blocks($content_override, $blocks)
           }
         }
       }
-
-      if (!empty($block['innerBlocks'])) {
-        $block['innerBlocks'] = merge_override_content_to_inner_blocks($content_override, $block['innerBlocks']);
-      }
     }
+
+    // Process inner blocks if they exist
+    if (!empty($block['innerBlocks'])) {
+      $block['innerBlocks'] = merge_override_content_to_inner_blocks($content_override, $block['innerBlocks']);
+    }
+
+    // Add processed block to result
+    $result[] = $block;
   }
-  return $blocks;
+
+  return $result;
 }
