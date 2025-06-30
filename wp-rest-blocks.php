@@ -19,7 +19,7 @@ namespace WP_REST_Blocks;
 use WP_REST_Blocks\Posts;
 use WP_REST_Blocks\Widgets;
 
-if ( is_admin() ) return;
+if ( is_admin() || ! defined( 'REST_REQUEST' ) || ! REST_REQUEST ) return;
 
 if ( is_readable( __DIR__ . '/vendor/autoload.php' ) ) {
 	require_once __DIR__ . '/vendor/autoload.php';
