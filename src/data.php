@@ -15,6 +15,7 @@ require_once __DIR__ . '/ava/manipulate-block-format-text-highlight.php';
 require_once __DIR__ . '/ava/serve-full-image-quality.php';
 require_once __DIR__ . '/ava/process-shortcode.php';
 require_once __DIR__ . '/ava/sync-pattern-to-inner-blocks.php';
+require_once __DIR__ . '/ava/remove-rest-api-fields.php';
 
 /**
  * Get blocks from html string.
@@ -80,6 +81,7 @@ function handle_do_block( array $block, $post_id = 0 ) {
 
   process_shortcode($block, $attr);
   manipulate_block_format_text_highlight($block, $attr);
+  remove_rest_api_fields($block, $attr);
 
   // * Removed by Ava
 	// $block['rendered'] = $block_object->render();
