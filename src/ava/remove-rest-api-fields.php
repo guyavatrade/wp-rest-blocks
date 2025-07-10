@@ -7,7 +7,7 @@ function remove_rest_api_fields(&$block, &$attr)
 
   // loop over $attr and remove empty fields
   foreach ($attr as $key => $value) {
-    if (empty($value) && $value !== '0') {
+    if (empty($value) && $value !== '0' && $value !== 0) {
       unset($attr[$key]);
     }
   }
