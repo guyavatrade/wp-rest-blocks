@@ -19,8 +19,10 @@ function merge_override_content_to_inner_blocks($content_override, $blocks)
         continue;
       }
 
-      // Get the full quality image URL
-      $url = isset($value['id']) ? wp_get_attachment_url($value['id']) : '';
+      $urlLink = isset($value['url']) ? $value['url'] : '';
+
+      // Get the full quality image URL or the original URL
+      $url = isset($value['id']) ? wp_get_attachment_url($value['id']) : $urlLink;
 
       if (isset($block['attrs']['metadata']['name'])) {
         if ($block['attrs']['metadata']['name'] === $key) {
