@@ -14,6 +14,7 @@ use pQuery;
 require_once __DIR__ . '/ava/manipulate-block-format-text-highlight.php';
 require_once __DIR__ . '/ava/serve-full-image-quality.php';
 require_once __DIR__ . '/ava/process-shortcode.php';
+require_once __DIR__ . '/ava/process-inline-image.php';
 require_once __DIR__ . '/ava/sync-pattern-to-inner-blocks.php';
 require_once __DIR__ . '/ava/remove-rest-api-fields.php';
 
@@ -80,6 +81,7 @@ function handle_do_block( array $block, $post_id = 0 ) {
 	}
 
   process_shortcode($block, $attr);
+  process_inline_image($block, $attr);
   manipulate_block_format_text_highlight($block, $attr);
   remove_rest_api_fields($block, $attr);
 
