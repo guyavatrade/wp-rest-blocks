@@ -85,6 +85,8 @@ function handle_do_block( array $block, $post_id = 0 ) {
   manipulate_block_format_text_highlight($block, $attr);
   remove_rest_api_fields($block, $attr);
 
+  $attr = apply_filters('wp_rest_blocks_process_attributes', $attr, $block, $post_id);
+
   // * Removed by Ava
 	// $block['rendered'] = $block_object->render();
 	// $block['rendered'] = do_shortcode( $block['rendered'] );
